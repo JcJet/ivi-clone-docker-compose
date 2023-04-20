@@ -1,0 +1,117 @@
+services:
+  profiles:
+    build:
+      context: profiles
+      dockerfile: Dockerfile
+      target: development
+    command: npm run start:dev
+    env_file:
+      - ./profiles/.env
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - '3001:3001'
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+      - rabbitmq
+      
+  auth:
+    build:
+      context: auth
+      dockerfile: Dockerfile
+      target: development
+    command: npm run start:dev
+    env_file:
+      - ./auth/.env
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+      - rabbitmq
+
+  comments:
+    build:
+      context: comments
+      dockerfile: Dockerfile
+      target: development
+    command: npm run start:dev
+    env_file:
+      - ./comments/.env
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+      - rabbitmq
+      
+  files:
+    build:
+      context: files
+      dockerfile: Dockerfile
+      target: development
+    command: npm run start:dev
+    env_file:
+      - ./files/.env
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+      - rabbitmq
+      
+  endpoints:
+    build:
+      context: endpoints
+      dockerfile: Dockerfile
+      target: development
+    command: npm run start:dev
+    env_file:
+      - ./endpoints/.env
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+      - rabbitmq
+    ports:
+      - '3000:3000'
+      
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+
+  postgresql-master:
+    image: docker.io/bitnami/postgresql:15
+    ports:
+      - '5432'
+    volumes:
+      - 'postgresql_master_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_DATABASE=my_database
+      - ALLOW_EMPTY_PASSWORD=yes
+  postgresql-slave:
+    image: docker.io/bitnami/postgresql:15
+    ports:
+      - '5432'
+    depends_on:
+      - postgresql-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_password
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_PASSWORD=my_password
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=yes
+
+volumes:
+  postgresql_master_data:
+    driver: local
