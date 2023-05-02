@@ -60,6 +60,8 @@ services:
       - postgresql-master
       - postgresql-slave
       - rabbitmq
+    ports:
+      - '3002:3002'
       
   endpoints:
     build:
