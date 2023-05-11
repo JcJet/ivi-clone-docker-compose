@@ -46,6 +46,21 @@ services:
       - postgresql-slave
       - rabbitmq
       
+  ivi-clone-roles-ms:
+    build:
+      context: ivi-clone-roles-ms
+      dockerfile: Dockerfile
+      target: development
+    command: npm run start:dev
+    env_file:
+      - ./ivi-clone-roles-ms/.env
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+      - rabbitmq
+      
   files:
     build:
       context: files
