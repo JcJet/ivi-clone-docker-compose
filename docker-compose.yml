@@ -14,9 +14,9 @@ services:
     build:
       context: ./ivi-clone-api-gateway
       dockerfile: ./Dockerfile
-      target: development
+      target: production
     ports:
-      - "3111:3111"
+      - "3100:3100"
     restart: always
 
   auth:
@@ -25,9 +25,6 @@ services:
       context: ./ivi-clone-auth-ms
       dockerfile: ./Dockerfile
       target: development
-    environment:
-      - RMQ_URL=amqp://rabbitmq:5672
-      - DB_HOST=auth_pg
     restart: always
     depends_on:
       - auth_pg
@@ -49,9 +46,6 @@ services:
       context: ./ivi-clone-comments-ms
       dockerfile: ./Dockerfile
       target: development
-    environment:
-      - RMQ_URL=amqp://rabbitmq:5672
-      - DB_HOST=comments_pg
     restart: always
     depends_on:
       - comments_pg
@@ -67,21 +61,6 @@ services:
       - "5432"
     restart: always
     
-  endpoints:
-    build:
-      context: ivi-clone-endpoints-ms
-      dockerfile: Dockerfile
-      target: development
-    command: npm run start:dev
-    env_file:
-      - ./ivi-clone-endpoints-ms/.env
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - rabbitmq
-    ports:
-      - '3000:3000'
-    
   files:
     container_name: files
     build:
@@ -90,9 +69,6 @@ services:
       target: development
     ports:
       - "3002:3002"
-    environment:
-      - RMQ_URL=amqp://rabbitmq:5672
-      - DB_HOST=files_pg
     restart: always
     depends_on:
       - files_pg
@@ -113,10 +89,7 @@ services:
     build:
       context: ./ivi-clone-genres-ms
       dockerfile: ./Dockerfile
-      target: development
-    environment:
-      - RMQ_URL=amqp://rabbitmq:5672
-      - DB_HOST=genres_pg
+      target: production
     restart: always
     ports:
       - "3200:3200"
@@ -188,9 +161,6 @@ services:
       context: ./ivi-clone-profiles-ms
       dockerfile: ./Dockerfile
       target: development
-    environment:
-      - RMQ_URL=amqp://rabbitmq:5672
-      - DB_HOST=profiles_pg
     restart: always
     depends_on:
       - profiles_pg
@@ -212,9 +182,6 @@ services:
       context: ./ivi-clone-roles-ms
       dockerfile: ./Dockerfile
       target: development
-    environment:
-      - RMQ_URL=amqp://rabbitmq:5672
-      - DB_HOST=roles_pg
     restart: always
     depends_on:
       - roles_pg
